@@ -4,6 +4,12 @@ import { useRef, useState } from "react";
 export default function Home() {
   const [imageSrc, setImageSrc] = useState(null);
   const canvasRef = useRef(null);
+  const pallete = [
+    [15, 56, 15],
+    [48, 98, 48],
+    [139, 172, 15],
+    [155, 188, 15],
+  ];
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -14,10 +20,28 @@ export default function Home() {
       const img = new Image();
       img.onload = () => drawCanvas(img);
       img.src = e.target.result;
-      setImageSrc(event.target.result);
+      setImageSrc(e.target.result);
     };
     reader.readAsDataURL(file);
   };
+  const findClosestColor = (r, g, b, pallete) => {
+    //finds closest color using super special 3d distance formula that i always forget
+    let minDistance = Infinity;
+    let closestColor = pallete[0];
+
+    for (let i = 0; i < pallete.length; i++) {
+      const [pr, pg, pb] = pallete[i];
+
+      const distance = (r - pr) ** 2 + (g - pg) ** 2 + (b - pb) ** 2;
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestColor = pallete[i];
+      }
+    }
+    return closestColor;
+  };
+
   const drawCanvas = (img) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -30,36 +54,50 @@ export default function Home() {
     ctx.drawImage(img, 0, 0);
     let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
+
     // ok some confusing math is coming so bear with me
-    for (let x = 0; x < width; x++) {
-      for (let y = 0; y < height; y++) {
+    const calculateError = (nx, ny, factor) => {
+      let error = old - newColor;
+      if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+        let nIdx = (ny * width + nx) * 4;
+
+        data[nIdx] += error * factor;
+        data[nIdx + 1] += error * factor;
+        data[nIdx + 2] += error * factor;
+      }
+    };
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
         let index = (y * width + x) * 4; // this is so i dont have to turn the 1d array from data to a 2d array
 
-        let r = data[index];
-        let g = data[index + 1];
-        let b = data[index + 2];
+        let oldR = data[index];
+        let oldG = data[index + 1];
+        let oldB = data[index + 2];
 
-        let old = (r + g + b) / 3;
-        let newColor = old < 128 ? 0 : 255;
-        data[index] = newColor;
-        data[index + 1] = newColor;
-        data[index + 2] = newColor;
+        const [newR, newG, newB] = findClosestColor(oldR, oldG, oldB, pallete);
 
-        let error = old - newColor;
+        data[index] = newR;
+        data[index + 1] = newG;
+        data[index + 2] = newB;
 
-        const calculateError = (nx, ny, factor) => {
+        let errR = oldR - newR;
+        let errG = oldG - newG;
+        let errB = oldB - newB;
+
+        const calculateError = (nx, ny, errR, errG, errB, factor) => {
           if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
             let nIdx = (ny * width + nx) * 4;
-
-            data[nIdx] += error * factor;
-            data[nIdx + 1] += error * factor;
-            data[nIdx + 2] += error * factor;
+            data[nIdx] += errR * factor;
+            data[nIdx + 1] += errG * factor;
+            data[nIdx + 2] += errB * factor;
           }
         };
-        calculateError(x + 1, y, 7 / 16); //wait wait wait, why must it be 7/16 you might ask? some dudes before me called floyd-steinberg said it's for the best output thats why
-        calculateError(x - 1, y + 1, 3 / 16);
-        calculateError(x, y + 1, 5 / 16);
-        calculateError(x + 1, y + 1, 1 / 16);
+
+        calculateError(x + 1, y, errR, errG, errB, 7 / 16); //wait wait wait, why must it be 7/16 you might ask? some dudes before me called floyd-steinberg said it's for the best output thats why
+        calculateError(x - 1, y + 1, errR, errG, errB, 3 / 16);
+        calculateError(x, y + 1, errR, errG, errB, 5 / 16);
+        calculateError(x + 1, y + 1, errR, errG, errB, 1 / 16);
       }
     }
     ctx.putImageData(imageData, 0, 0);
