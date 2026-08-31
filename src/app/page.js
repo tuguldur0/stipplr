@@ -209,6 +209,47 @@ export default function Home() {
                   className="w-full text-xs text-gray-300 file:mr-3 file:py-1 file:px-3 file:border file:border-gray-600 file:bg-[1a1a1a] file:text-[#a3ff00] file:cursor-pointer hover:file:bg-[#252525]"
                 ></input>
               </div>
+              {imageSrc && (
+                <button
+                  onClick={handleExport}
+                  className="mt-2 border border-[#a3ff00] bg-[#a3ff00]/10 text-[#a3ff00] py-2 px-4 hover:bg-[#a3ff00] hover:text-black font-bold transition text-xs"
+                >
+                  Export PNG
+                </button>
+              )}
+            </div>
+          </div>
+          {/* 2nd, technically 3rd window */}
+          <div
+            onClick={() => setFocused(2)}
+            className={`flex-1 flex flex-col border transition-all duration-75 bg-[#111111] ${focused === 2 ? "border-[#a3ff00] shadow-[0_0_12px_rgba(163,255,0,0.15)]" : "border-[#262626] opacity-80"}`}
+          >
+            <div
+              className={`px-2 py-1 text-xs flex justify-between font-bold ${focused == 2 ? "bg-[#a3ff00] text-black" : "bg-[#202020] text-gray-400"}`}
+            >
+              <p>Palletes</p>
+            </div>
+
+            <div className="p-4 text-xs flex flex-col gap-3">
+              <p>active rgb</p>
+              <div>
+                {pallete.map((color, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-2 border border-gray-800 p-1.5 bg-black"
+                  >
+                    <div
+                      className="w-4 h-4 border border-gray-500"
+                      style={{
+                        backgroundColor: `rgb(${color[0]}, ${color[1]}, ${color[2]})`,
+                      }}
+                    />
+                    <p className="text-[10px] font-mono text-gray-400">
+                      {color.join(",")}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
