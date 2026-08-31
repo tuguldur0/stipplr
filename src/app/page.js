@@ -120,7 +120,7 @@ export default function Home() {
           }
         };
 
-        calculateError(x + 1, y, errR, errG, errB, 7 / 16); //wait wait wait, why must it be 7/16 you might ask? some dudes before me called floyd-steinberg said it's for the best output thats why
+        calculateError(x + 1, y, errR, errG, errB, 7 / 16); // floyd-steinberg weights eg. 7/16
         calculateError(x - 1, y + 1, errR, errG, errB, 3 / 16);
         calculateError(x, y + 1, errR, errG, errB, 5 / 16);
         calculateError(x + 1, y + 1, errR, errG, errB, 1 / 16);
@@ -153,17 +153,15 @@ export default function Home() {
       <div className="bg-[#181818] border border-[#2a2a2a] px-4 py-1 flex justify-between text-xs text-[#888]">
         <div className="flex gap-4">
           <p className="text-[#a3ff00] font-bold">stipplr</p>
-          <p className={focused === 0 ? "text-white underline" : ""}>
-            [1: View]
-          </p>
+          <p className={focused === 0 ? "text-white underline" : ""}>[View]</p>
           <p className={focused === 1 ? "text-white underline" : ""}>
-            [2: Controls]
+            [Controls]
           </p>
           <p className={focused === 2 ? "text-white underline" : ""}>
-            [3: Pallete]
+            [Pallete]
           </p>
         </div>
-        <div>NAV: arrowkeys</div>
+        <div>nav: arrowkeys</div>
       </div>
       {/*grid*/}
       <div className="flex-1 grid grid-cols-12 gap-3 min-h-0">
@@ -175,8 +173,8 @@ export default function Home() {
           <div
             className={`px-2 py-1 text-xs flex justify-between font-bold ${focused === 0 ? "bg-[#a3ff00] text-black" : "bg-[#202020] text-gray-500"}`}
           >
-            <p>[0 VIEW.RAW]</p>
-            <p>FLOYD-STEINBERG</p>
+            <p>View</p>
+            <p>floyd-steinberg</p>
           </div>
           <div className="flex-1 p-4 flex items-center justify-center bg-black overflow-auto relative">
             {!imageSrc && (
@@ -199,14 +197,11 @@ export default function Home() {
             <div
               className={`px-2 py-1 text-xs flex justify-between font-bold ${focused === 1 ? "bg-[#a3ff00] text-black" : "bg-[#202020] text-[#777]"}`}
             >
-              <p>[1] Controls</p>
-              <p>FILE</p>
+              <p>Controls</p>
             </div>
             <div className="p-4 flex flex-col gap-4 text-xs">
               <div>
-                <label className="block text-gray-400 mb-2">
-                  // SELECT IMAGE
-                </label>
+                <label className="block text-gray-400 mb-2">select image</label>
                 <input
                   type="file"
                   accept="image/*"
