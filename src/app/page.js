@@ -12,12 +12,12 @@ export default function Home() {
   const canvasRef = useRef(null);
   const loadedImgRef = useRef(null);
 
-  const pallete = [
+  const [pallete, setPallete] = useState([
     [15, 56, 15],
     [48, 98, 48],
     [139, 172, 15],
     [155, 188, 15],
-  ];
+  ]);
 
   useEffect(() => {
     const handleKeydown = (e) => {
@@ -55,7 +55,28 @@ export default function Home() {
     if (loadedImgRef.current) {
       drawCanvas(loadedImgRef.current);
     }
-  }, [algorithmsSelected]);
+  }, [algorithmsSelected, pallete]);
+
+  const rgbToHex = ([r, g, b]) => {
+    return "#" + [r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("");
+  };
+  const hexToRgb = (hex) => {
+    const num = parseInt(hex.replace("#", ""), 16);
+    return [num >> 16 && 255, (num >> 8) & 255, num & 255];
+  };
+  const handleColorChange = (index, newHex) => {
+    const updatedPallete = [...pallete];
+    updatedPallete[index] = hexToRgb(newHex);
+    setPallete(updatedPallete);
+  };
+
+  const handleAddColor = () => {
+    setPallete([...pallete, [0, 0, 0]]);
+  };
+  const handleRemoveColor = (index) => {
+    if (pallete.length <= 2) return;
+    setPallete(pallete.filter((_, i) => i !== index));
+  };
 
   const handleSelect = (option) => {
     setAlgorithmsSelected(option);
@@ -222,7 +243,7 @@ export default function Home() {
           <div className="flex-1 p-4 flex items-center justify-center bg-black overflow-auto relative">
             {!imageSrc && (
               <div className="absolute text-center text-xs text-gray-400 border border-dashed border-gray-700 p-8">
-                / NO IMAGE ADDED, SELECT IN PANEL[1]
+                no image added, add in Controls
               </div>
             )}
             <canvas
@@ -304,14 +325,23 @@ export default function Home() {
                     className="flex items-center gap-2 border border-gray-800 p-1.5 bg-black"
                   >
                     <div
-                      className="w-4 h-4 border border-gray-500"
-                      style={{
-                        backgroundColor: `rgb(${color[0]}, ${color[1]}, ${color[2]})`,
-                      }}
-                    />
-                    <p className="text-[10px] font-mono text-gray-400">
-                      {color.join(",")}
-                    </p>
+                      className="relative w-5 h-5 border border-white cursor-pointer"
+                      style={{ backgroundColor: rgbToHex(color) }}
+                    >
+                      <input
+                        type="color"
+                        value={rgbToHex(color)}
+                        onChange={(e) => handleColorChange(idx, e.target.value)}
+                        className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                      />
+                    </div>
+                    <p>{color.join(",")}</p>
+                    <button
+                      onClick={() => handleRemoveColor(idx)}
+                      className="text-white"
+                    >
+                      remove
+                    </button>
                   </div>
                 ))}
               </div>
